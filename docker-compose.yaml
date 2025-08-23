@@ -1,0 +1,86 @@
+version: '3.9'
+
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    command: npm run start:dev api-gateway
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - '${PORT}:${PORT}'
+    env_file:
+      - ./.env
+    depends_on:
+      - booking
+      - notification
+      - user
+    networks:
+      - my-app-network
+
+  booking:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: booking
+    command: npm run start:dev booking
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - '${BOOKING_PORT}:${BOOKING_PORT}'
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+    networks:
+      - my-app-network
+
+  notification:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: notification
+    command: npm run start:dev notification
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - '${NOTIFICATION_PORT}:${NOTIFICATION_PORT}'
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+    networks:
+      - my-app-network
+
+  user:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: user
+    command: npm run start:dev user
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - '${USER_PORT}:${USER_PORT}'
+    env_file:
+      - ./.env
+    networks:
+      - my-app-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+    networks:
+      - my-app-network
+
+networks:
+  my-app-network:
+    driver: bridge
